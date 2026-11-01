@@ -84,7 +84,33 @@ except ImportError:
 
 # Provide a PEP 3115 compliant mechanism for class creation
 def new_class(name, bases=(), kwds=None, exec_body=None):
-    """Create a class object dynamically using the appropriate metaclass."""
+    """Create a class object dynamically using the appropriate metaclass.
+
+    The first three arguments are the components that make up a class
+    definition header: the class name, the base classes (in order), and
+    the keyword arguments (such as ``metaclass``) from an equivalent
+    ``class`` statement.
+
+    The base classes are first resolved (see ``resolve_bases``), then
+    ``prepare_class`` is called with the name, resolved bases, and
+    *kwds* to determine the metaclass and class namespace.  If the
+    metaclass defines ``__prepare__``, it is called with the name,
+    resolved bases, and the keyword arguments remaining in *kwds* (with
+    any ``'metaclass'`` entry removed).
+
+    If *exec_body* is not ``None``, it is called with that namespace and
+    should update it directly with the class body; otherwise the namespace
+    is left unchanged apart from any entries added by ``__prepare__``.
+
+    For example, the class definition::
+
+        class C(A, B, foo=bar):
+            x = 42
+
+    can be translated to::
+
+        C = new_class('C', (A, B), {'foo': bar}, lambda ns: ns.update(x=42))
+    """
     resolved_bases = resolve_bases(bases)
     meta, ns, kwds = prepare_class(name, resolved_bases, kwds)
     if exec_body is not None:
