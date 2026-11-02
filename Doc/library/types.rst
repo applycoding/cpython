@@ -36,6 +36,10 @@ Dynamic Type Creation
    contents. If no callback is provided, it has the same effect as passing
    in ``lambda ns: None``.
 
+   The namespace passed to *exec_body* is obtained by calling
+   :func:`prepare_class` with the resolved base classes; that function
+   invokes the metaclass's ``__prepare__`` method when it is defined.
+
    .. versionadded:: 3.3
 
 .. function:: prepare_class(name, bases=(), kwds=None)
